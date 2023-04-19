@@ -9,4 +9,9 @@ public class Representation {
     public Representation(URI uri) {
         this.uri = uri;
     }
+
+    @Override
+    public String toString() {
+        return uri.toString();
+    }
 }
