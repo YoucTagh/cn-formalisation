@@ -18,10 +18,10 @@ public class FirstUseCase {
         Representation bobRdfXml = new Representation(new URI("http://www.bob-server.com/bob.rdf"));
 
         Constraint serverConstraintBobJpeg = representation -> representation.equals(bobJpeg) ? 0.7F : 0F;
-        Constraint serverConstraintTextFr = representation -> representation.equals(bobTextFr) ? 0.5F : 0F;
-        Constraint serverConstraintTextEn = representation -> representation.equals(bobTextEn) ? 0.5F : 0F;
-        Constraint serverConstraintRdfTurtle = representation -> representation.equals(bobRdfTurtle) ? 0.6F : 0F;
-        Constraint serverConstraintRdfXml = representation -> representation.equals(bobRdfXml) ? 0.5F : 0F;
+        Constraint serverConstraintBobTextFr = representation -> representation.equals(bobTextFr) ? 0.6F : 0F;
+        Constraint serverConstraintBobTextEn = representation -> representation.equals(bobTextEn) ? 0.5F : 0F;
+        Constraint serverConstraintBobRdfTurtle = representation -> representation.equals(bobRdfTurtle) ? 0.6F : 0F;
+        Constraint serverConstraintBobRdfXml = representation -> representation.equals(bobRdfXml) ? 0.5F : 0F;
 
         CNMeasure serverCNMeasure = (representation, clientConstraints, serverConstraint) -> {
             float clientQuality = 0;
@@ -33,31 +33,33 @@ public class FirstUseCase {
             for (Constraint constraint : serverConstraint) {
                 serverQuality = Math.max(constraint.getRepresentationQuality(representation), serverQuality);
             }
-            return Math.min(clientQuality, serverQuality);
+            return clientQuality * serverQuality;
         };
 
         Web web = new Web();
         web.addWebServer(bob, new WebServerResource(
                 Set.of(bobJpeg, bobTextEn, bobTextFr, bobRdfTurtle, bobRdfXml),
                 serverCNMeasure,
-                Set.of(serverConstraintBobJpeg, serverConstraintTextEn, serverConstraintTextFr, serverConstraintRdfTurtle, serverConstraintRdfXml)));
+                Set.of(serverConstraintBobJpeg, serverConstraintBobTextEn, serverConstraintBobTextFr, serverConstraintBobRdfTurtle, serverConstraintBobRdfXml)));
 
-        Set<Constraint> clientConstraints = getClientConstraints(0);
-
+        Set<Constraint> clientConstraints = getClientConstraints(4);
 
         Query query = new Query(bob.uri, clientConstraints);
 
         WebServerResource resourceWebServer = web.findResourceWebServer(query.resourceURI);
 
-        Representation representation = web.negotiateRepresentation(resourceWebServer.representations,
+        Response response = web.negotiateResponse(
+                resourceWebServer.representations,
                 resourceWebServer.cnMeasure,
                 query.clientConstraints,
-                resourceWebServer.serverConstraints);
+                resourceWebServer.serverConstraints
+        );
 
-        System.out.println(representation);
+        System.out.println(response);
 
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static Set<Constraint> getClientConstraints(int useCase) {
         switch (useCase) {
             case 1:
