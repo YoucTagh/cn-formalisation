@@ -50,7 +50,7 @@ public class Web {
                     clientConstraints,
                     serverConstraints
             );
-            if (semanticMeasurement.qualityValue > semanticMeasurement.qualityValue) {
+            if (semanticMeasurement.qualityValue > bestSemanticMeasurement.qualityValue) {
                 bestSemanticMeasurement = semanticMeasurement;
                 bestRepresentation = (RDFRepresentation) representation;
             }
