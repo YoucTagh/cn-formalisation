@@ -21,6 +21,7 @@ public class SemanticResponse extends Response {
     public String toString() {
         return "SemanticResponse:" +
                 "\n" + "representation = " + representation +
-                "\n" + "report = " + report;
+                "\n" + "report = " +
+                "\n" + report;
     }
 }
