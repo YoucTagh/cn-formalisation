@@ -134,7 +134,7 @@ public class ThirdUseCase {
 
             ValidationReport report = ShaclValidator.get().validate(shapes, dataGraph);
 
-            return report.getEntries().size() == 0;
+            return report.conforms();
 
         } catch (Exception ex) {
             return false;

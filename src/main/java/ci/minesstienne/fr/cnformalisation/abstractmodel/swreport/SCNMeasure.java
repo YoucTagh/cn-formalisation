@@ -18,7 +18,7 @@ public interface SCNMeasure extends CNMeasure {
     default float getRepresentationQuality(Representation representation, Set<Constraint> clientConstraints, Set<Constraint> serverConstraint) {
         return this.getRepresentationSemanticMeasurement
                 (
-                        (RDFRepresentation) representation,
+                        representation,
                         clientConstraints.stream().map(constraint -> (RDFConstraint) constraint).collect(Collectors.toSet()),
                         serverConstraint.stream().map(constraint -> (RDFConstraint) constraint).collect(Collectors.toSet())
                 ).qualityValue;
