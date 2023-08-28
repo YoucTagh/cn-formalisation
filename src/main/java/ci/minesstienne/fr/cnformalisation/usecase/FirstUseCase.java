@@ -9,19 +9,19 @@ import java.util.Set;
  */
 public class FirstUseCase {
     public static void main(String[] args) {
-        Resource bob = new Resource(new URI("http://www.bob-server.com/bob"));
+        Resource abiesNumidica = new Resource(new URI("http://youctagh.com/species/abies_numidica"));
 
-        Representation bobJpeg = new Representation(new URI("http://www.bob-server.com/bob.jpeg"));
-        Representation bobTextFr = new Representation(new URI("http://www.bob-server.com/bob.fr.txt"));
-        Representation bobTextEn = new Representation(new URI("http://www.bob-server.com/bob.en.txt"));
-        Representation bobRdfTurtle = new Representation(new URI("http://www.bob-server.com/bob.ttl"));
-        Representation bobRdfXml = new Representation(new URI("http://www.bob-server.com/bob.rdf"));
+        Representation abiesNumidicaJpeg = new Representation(new URI("http://youctagh.com/species/abies_numidica.jpeg"));
+        Representation abiesNumidicaTextFr = new Representation(new URI("http://youctagh.com/species/abies_numidica.fr.txt"));
+        Representation abiesNumidicaTextEn = new Representation(new URI("http://youctagh.com/species/abies_numidica.en.txt"));
+        Representation abiesNumidicaRdfTurtle = new Representation(new URI("http://youctagh.com/species/abies_numidica.ttl"));
+        Representation abiesNumidicaRdfXml = new Representation(new URI("http://youctagh.com/species/abies_numidica.rdf"));
 
-        Constraint serverConstraintBobJpeg = representation -> representation.equals(bobJpeg) ? 0.7F : 0F;
-        Constraint serverConstraintBobTextFr = representation -> representation.equals(bobTextFr) ? 0.6F : 0F;
-        Constraint serverConstraintBobTextEn = representation -> representation.equals(bobTextEn) ? 0.5F : 0F;
-        Constraint serverConstraintBobRdfTurtle = representation -> representation.equals(bobRdfTurtle) ? 0.6F : 0F;
-        Constraint serverConstraintBobRdfXml = representation -> representation.equals(bobRdfXml) ? 0.5F : 0F;
+        Constraint serverConstraintAbiesNumidicaJpeg = representation -> representation.equals(abiesNumidicaJpeg) ? 0.7F : 0F;
+        Constraint serverConstraintAbiesNumidicaTextFr = representation -> representation.equals(abiesNumidicaTextFr) ? 0.6F : 0F;
+        Constraint serverConstraintAbiesNumidicaTextEn = representation -> representation.equals(abiesNumidicaTextEn) ? 0.5F : 0F;
+        Constraint serverConstraintAbiesNumidicaRdfTurtle = representation -> representation.equals(abiesNumidicaRdfTurtle) ? 0.6F : 0F;
+        Constraint serverConstraintAbiesNumidicaRdfXml = representation -> representation.equals(abiesNumidicaRdfXml) ? 0.5F : 0F;
 
         CNMeasure serverCNMeasure = (representation, clientConstraints, serverConstraint) -> {
             float clientQuality = 0;
@@ -37,14 +37,14 @@ public class FirstUseCase {
         };
 
         Web web = new Web();
-        web.addWebServer(bob, new WebServerResource(
-                Set.of(bobJpeg, bobTextEn, bobTextFr, bobRdfTurtle, bobRdfXml),
+        web.addWebServer(abiesNumidica, new WebServerResource(
+                Set.of(abiesNumidicaJpeg, abiesNumidicaTextEn, abiesNumidicaTextFr, abiesNumidicaRdfTurtle, abiesNumidicaRdfXml),
                 serverCNMeasure,
-                Set.of(serverConstraintBobJpeg, serverConstraintBobTextEn, serverConstraintBobTextFr, serverConstraintBobRdfTurtle, serverConstraintBobRdfXml)));
+                Set.of(serverConstraintAbiesNumidicaJpeg, serverConstraintAbiesNumidicaTextEn, serverConstraintAbiesNumidicaTextFr, serverConstraintAbiesNumidicaRdfTurtle, serverConstraintAbiesNumidicaRdfXml)));
 
-        Set<Constraint> clientConstraints = getClientConstraints(4);
+        Set<Constraint> clientConstraints = getClientConstraints(7);
 
-        Query query = new Query(bob.uri, clientConstraints);
+        Query query = new Query(abiesNumidica.uri, clientConstraints);
 
         WebServerResource resourceWebServer = web.findResourceWebServer(query.resourceURI);
 

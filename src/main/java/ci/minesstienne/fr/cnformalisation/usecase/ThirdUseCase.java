@@ -23,7 +23,7 @@ public class ThirdUseCase {
 
     public static void main(String[] args) {
 
-        Resource bob = new Resource(new URI("http://localhost:80/cn-formalisation/3/bob"));
+        Resource abiesNumidica = new Resource(new URI("http://localhost:80/cn-formalisation/3/abies_numidica"));
 
         SCNMeasure scnMeasure = (representation, clientConstraints, serverConstraint) -> {
             float clientQuality = 0;
@@ -41,22 +41,22 @@ public class ThirdUseCase {
 
         Web web = new Web();
 
-        RDFRepresentation bobFoaf = new RDFRepresentation(new URI("http://localhost:80/cn-formalisation/3/bob/bob-foaf.ttl"), new URI("http://localhost:80/cn-formalisation/3/bob/profile-foaf.ttl"));
-        RDFRepresentation bobFoafOrg = new RDFRepresentation(new URI("http://localhost:80/cn-formalisation/3/bob/bob-foaf-org.ttl"), new URI("http://localhost:80/cn-formalisation/3/bob/profile-foaf-org.ttl"));
-        RDFRepresentation bobSchema = new RDFRepresentation(new URI("http://localhost:80/cn-formalisation/3/bob/bob-schema.ttl"), new URI("http://localhost:80/cn-formalisation/3/bob/profile-schema.ttl"));
+        RDFRepresentation abiesNumidicaFoaf = new RDFRepresentation(new URI("http://localhost:80/cn-formalisation/3/abies_numidica/an-foaf.ttl"), new URI("http://localhost:80/cn-formalisation/3/abies_numidica/profile-foaf.ttl"));
+        RDFRepresentation abiesNumidicaFoafOrg = new RDFRepresentation(new URI("http://localhost:80/cn-formalisation/3/abies_numidica/an-foaf-org.ttl"), new URI("http://localhost:80/cn-formalisation/3/abies_numidica/profile-foaf-org.ttl"));
+        RDFRepresentation abiesNumidicaSchema = new RDFRepresentation(new URI("http://localhost:80/cn-formalisation/3/abies_numidica/an-schema.ttl"), new URI("http://localhost:80/cn-formalisation/3/abies_numidica/profile-schema.ttl"));
 
-        RDFConstraint serverConstraintBobFoaf = representation -> representation.equals(bobFoaf) ? mustBeOfRDFRepresentationType(representation, 0.7F) : 0F;
-        RDFConstraint serverConstraintBobFoafOrg = representation -> representation.equals(bobFoafOrg) ? mustBeOfRDFRepresentationType(representation, 0.8F) : 0F;
-        RDFConstraint serverConstraintBobSchema = representation -> representation.equals(bobSchema) ? mustBeOfRDFRepresentationType(representation, 0.6F) : 0F;
+        RDFConstraint serverConstraintAbiesNumidicaFoaf = representation -> representation.equals(abiesNumidicaFoaf) ? mustBeOfRDFRepresentationType(representation, 0.7F) : 0F;
+        RDFConstraint serverConstraintAbiesNumidicaFoafOrg = representation -> representation.equals(abiesNumidicaFoafOrg) ? mustBeOfRDFRepresentationType(representation, 0.8F) : 0F;
+        RDFConstraint serverConstraintAbiesNumidicaSchema = representation -> representation.equals(abiesNumidicaSchema) ? mustBeOfRDFRepresentationType(representation, 0.6F) : 0F;
 
-        web.addWebServer(bob, new WebServerResource(
-                Set.of(bobFoaf, bobFoafOrg, bobSchema),
+        web.addWebServer(abiesNumidica, new WebServerResource(
+                Set.of(abiesNumidicaFoaf, abiesNumidicaFoafOrg, abiesNumidicaSchema),
                 scnMeasure,
-                Set.of(serverConstraintBobFoaf, serverConstraintBobFoafOrg, serverConstraintBobSchema)));
+                Set.of(serverConstraintAbiesNumidicaFoaf, serverConstraintAbiesNumidicaFoafOrg, serverConstraintAbiesNumidicaSchema)));
 
-        Set<Constraint> clientConstraints = getClientConstraints(9);
+        Set<Constraint> clientConstraints = getClientConstraints(10);
 
-        Query query = new Query(bob.uri, clientConstraints);
+        Query query = new Query(abiesNumidica.uri, clientConstraints);
 
         WebServerResource resourceWebServer = web.findResourceWebServer(query.resourceURI);
 
@@ -87,32 +87,32 @@ public class ThirdUseCase {
                 );
             case 4:
                 return Set.of(
-                        representation -> ((RDFRepresentation) representation).profile.toString().equals("http://localhost:80/cn-formalisation/3/bob/profile-foaf.ttl") ? 1F : 0F
+                        representation -> ((RDFRepresentation) representation).profile.toString().equals("http://localhost:80/cn-formalisation/3/abies_numidica/profile-foaf.ttl") ? 1F : 0F
                 );
             case 5:
                 return Set.of(
-                        representation -> ((RDFRepresentation) representation).profile.toString().equals("http://localhost:80/cn-formalisation/3/bob/profile-schema.ttl") ? 1F : 0F
+                        representation -> ((RDFRepresentation) representation).profile.toString().equals("http://localhost:80/cn-formalisation/3/abies_numidica/profile-schema.ttl") ? 1F : 0F
                 );
             case 6:
                 return Set.of(
-                        representation -> ((RDFRepresentation) representation).profile.toString().equals("http://localhost:80/cn-formalisation/3/bob/profile-schema.ttl") ? 1F : 0F,
-                        representation -> ((RDFRepresentation) representation).profile.toString().equals("http://localhost:80/cn-formalisation/3/bob/profile-foaf-org.ttl") ? 0.75F : 0F,
-                        representation -> ((RDFRepresentation) representation).profile.toString().equals("http://localhost:80/cn-formalisation/3/bob/profile-foaf.ttl") ? 0.5F : 0F
+                        representation -> ((RDFRepresentation) representation).profile.toString().equals("http://localhost:80/cn-formalisation/3/abies_numidica/profile-schema.ttl") ? 1F : 0F,
+                        representation -> ((RDFRepresentation) representation).profile.toString().equals("http://localhost:80/cn-formalisation/3/abies_numidica/profile-foaf-org.ttl") ? 0.75F : 0F,
+                        representation -> ((RDFRepresentation) representation).profile.toString().equals("http://localhost:80/cn-formalisation/3/abies_numidica/profile-foaf.ttl") ? 0.5F : 0F
                 );
             case 7:
                 return Set.of(
                         representation -> !(
-                                ((RDFRepresentation) representation).profile.toString().equals("http://localhost:80/cn-formalisation/3/bob/profile-foaf-org.ttl")
-                                        || ((RDFRepresentation) representation).profile.toString().equals("http://localhost:80/cn-formalisation/3/bob/profile-foaf.ttl")
+                                ((RDFRepresentation) representation).profile.toString().equals("http://localhost:80/cn-formalisation/3/abies_numidica/profile-foaf-org.ttl")
+                                        || ((RDFRepresentation) representation).profile.toString().equals("http://localhost:80/cn-formalisation/3/abies_numidica/profile-foaf.ttl")
                         ) ? 1F : 0F
                 );
             case 8:
                 return Set.of(
-                        representation -> ((RDFRepresentation) representation).profile.toString().equals("http://localhost:80/cn-formalisation/3/bob/profile-schema-custom.ttl") ? 1F : 0F
+                        representation -> ((RDFRepresentation) representation).profile.toString().equals("http://localhost:80/cn-formalisation/3/abies_numidica/profile-schema-custom.ttl") ? 1F : 0F
                 );
             case 9:
                 return Set.of(
-                        representation -> isRepresentationValid(representation, new URI("http://localhost:80/cn-formalisation/3/bob/profile-schema-custom.ttl")) ? 1F : 0F
+                        representation -> isRepresentationValid(representation, new URI("http://localhost:80/cn-formalisation/3/abies_numidica/profile-schema-custom.ttl")) ? 1F : 0F
                 );
             default:
                 return Set.of(representation -> 1F);
