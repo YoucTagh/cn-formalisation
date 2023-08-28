@@ -54,6 +54,7 @@ public class Web {
                 bestSemanticMeasurement = semanticMeasurement;
                 bestRepresentation = (RDFRepresentation) representation;
             }
+           // System.out.println(representation.uri + " => " + semanticMeasurement.qualityValue);
         }
 
         return new SemanticResponse(bestRepresentation, Stream.concat(clientConstraints.stream(), serverConstraints.stream()).collect(Collectors.toSet()), bestSemanticMeasurement.report);
