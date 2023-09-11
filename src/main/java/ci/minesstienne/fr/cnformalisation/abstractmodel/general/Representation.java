@@ -4,14 +4,14 @@ package ci.minesstienne.fr.cnformalisation.abstractmodel.general;
  * @author YoucTagh
  */
 public class Representation {
-    public URI uri;
+    public Identifier identifier;
 
-    public Representation(URI uri) {
-        this.uri = uri;
+    public Representation(Identifier identifier) {
+        this.identifier = identifier;
     }
 
     @Override
     public String toString() {
-        return uri.toString();
+        return identifier.toString();
     }
 }

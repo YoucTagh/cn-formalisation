@@ -5,12 +5,12 @@ import java.util.Set;
 /**
  * @author YoucTagh
  */
-public class Query {
-    public URI resourceURI;
+public class Request {
+    public Identifier resourceIdentifier;
     public Set<Constraint> clientConstraints;
 
-    public Query(URI resourceURI, Set<Constraint> clientConstraints) {
-        this.resourceURI = resourceURI;
+    public Request(Identifier resourceIdentifier, Set<Constraint> clientConstraints) {
+        this.resourceIdentifier = resourceIdentifier;
         this.clientConstraints = clientConstraints;
     }
 }

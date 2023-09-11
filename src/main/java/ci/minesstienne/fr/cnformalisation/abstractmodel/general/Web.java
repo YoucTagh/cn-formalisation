@@ -1,6 +1,5 @@
 package ci.minesstienne.fr.cnformalisation.abstractmodel.general;
 
-import ci.minesstienne.fr.cnformalisation.abstractmodel.semantic.RDFConstraint;
 import ci.minesstienne.fr.cnformalisation.abstractmodel.semantic.RDFRepresentation;
 import ci.minesstienne.fr.cnformalisation.abstractmodel.swreport.SCNMeasure;
 import ci.minesstienne.fr.cnformalisation.abstractmodel.swreport.SemanticMeasurement;
@@ -16,14 +15,14 @@ import java.util.stream.Stream;
  */
 public class Web {
 
-    private final HashMap<Resource, WebServerResource> WEB = new HashMap<>();
+    private final HashMap<Resource, ServerData> WEB = new HashMap<>();
 
-    public void addWebServer(Resource resource, WebServerResource webServerResource) {
-        WEB.put(resource, webServerResource);
+    public void addServerData(Resource resource, ServerData serverData) {
+        WEB.put(resource, serverData);
     }
 
-    public WebServerResource findResourceWebServer(URI resourceURI) {
-        return WEB.get(new Resource(resourceURI));
+    public ServerData findServerData(Identifier resourceIdentifier) {
+        return WEB.get(new Resource(resourceIdentifier));
     }
 
     public Response negotiateResponse(Set<Representation> representations, CNMeasure cnMeasure, Set<Constraint> clientConstraints, Set<Constraint> serverConstraints) {

@@ -6,10 +6,10 @@ import java.util.Objects;
  * @author YoucTagh
  */
 public class Resource {
-    public URI uri;
+    public Identifier identifier;
 
-    public Resource(URI uri) {
-        this.uri = uri;
+    public Resource(Identifier identifier) {
+        this.identifier = identifier;
     }
 
     @Override
@@ -17,11 +17,11 @@ public class Resource {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Resource resource = (Resource) o;
-        return Objects.equals(uri, resource.uri);
+        return Objects.equals(identifier, resource.identifier);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(uri);
+        return Objects.hash(identifier);
     }
 }

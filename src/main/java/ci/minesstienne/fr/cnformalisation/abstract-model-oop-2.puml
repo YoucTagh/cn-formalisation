@@ -1,0 +1,28 @@
+@startuml
+
+class Representation {
+    + identifier : Identifier
+}
+
+
+interface Constraint {
+    + getRepresentationQuality(representation) : float
+}
+
+
+interface RDFConstraint extends Constraint {
+    + mustBeOfRDFRepresentationType(representation, qualityValue):float
+}
+
+class RDFRepresentation extends Representation {
+    + profile: Profile
+}
+
+class Profile {
+    + identifier: Identifier ;
+}
+
+
+RDFRepresentation --> Profile
+
+@enduml

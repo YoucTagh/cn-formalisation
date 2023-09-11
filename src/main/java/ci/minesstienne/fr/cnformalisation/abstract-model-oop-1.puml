@@ -1,0 +1,68 @@
+@startuml
+
+
+class Identifier {
+    + id : String ;
+}
+
+class Resource {
+    + identifier : Identifier
+}
+
+class Web {
+    - WEB : HashMap<Resource, ServerData>
+    + addWebServer(resource, serverData) : void
+    + findResourceWebServer(resourceIdentifier) : ServerData
+    + Response negotiateResponse(representations , cnMeasure , clientConstraints , serverConstraints)
+}
+
+class Representation {
+    + identifier : Identifier
+}
+
+class Response {
+    + representation : Representation
+    + constraints : Set<Constraint>
+}
+
+interface CNMeasure {
+    + getRepresentationQuality(representation , clientConstraints , serverConstraint) : float
+}
+
+
+class Request {
+    + resourceIdentifier : Identifier
+    + clientConstraints : Set<Constraint>
+}
+
+
+
+class ServerData {
+    + representations : Set<Representation>
+    + cnMeasure : CNMeasure
+    + serverConstraints : Set<Constraint>
+}
+
+
+interface Constraint {
+    + getRepresentationQuality(representation) : float
+}
+
+Resource --> Identifier
+Representation --> Identifier
+Constraint ..> Representation
+CNMeasure ..> Constraint
+CNMeasure ..> Representation
+ServerData --> CNMeasure
+ServerData --> Constraint
+ServerData --> Representation
+Web --> Resource
+Web --> ServerData
+Web ..> CNMeasure
+Web ..> Constraint
+Web ..> Identifier
+Web ..> Representation
+Web ..> Response
+Request --> Constraint
+Request --> Identifier
+@enduml

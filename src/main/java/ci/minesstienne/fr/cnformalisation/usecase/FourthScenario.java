@@ -1,6 +1,7 @@
 package ci.minesstienne.fr.cnformalisation.usecase;
 
 import ci.minesstienne.fr.cnformalisation.abstractmodel.general.*;
+import ci.minesstienne.fr.cnformalisation.abstractmodel.semantic.Profile;
 import ci.minesstienne.fr.cnformalisation.abstractmodel.semantic.RDFConstraint;
 import ci.minesstienne.fr.cnformalisation.abstractmodel.semantic.RDFRepresentation;
 import ci.minesstienne.fr.cnformalisation.abstractmodel.swreport.RDFConstraintWithReport;
@@ -25,11 +26,11 @@ import static ci.minesstienne.fr.cnformalisation.abstractmodel.semantic.RDFConst
 /**
  * @author YoucTagh
  */
-public class FourthUseCase {
+public class FourthScenario {
 
     public static void main(String[] args) {
 
-        Resource abiesNumidica = new Resource(new URI("http://localhost:80/cn-formalisation/3/abies_numidica"));
+        Resource abiesNumidica = new Resource(new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica"));
 
         SCNMeasure scnMeasure = (representation, clientConstraints, serverConstraint) -> {
 
@@ -50,29 +51,29 @@ public class FourthUseCase {
 
         Web web = new Web();
 
-        RDFRepresentation abiesNumidicaFoaf = new RDFRepresentation(new URI("http://localhost:80/cn-formalisation/3/abies_numidica/an-foaf.ttl"), new URI("http://localhost:80/cn-formalisation/3/abies_numidica/profile-foaf.ttl"));
-        RDFRepresentation abiesNumidicaFoafOrg = new RDFRepresentation(new URI("http://localhost:80/cn-formalisation/3/abies_numidica/an-foaf-org.ttl"), new URI("http://localhost:80/cn-formalisation/3/abies_numidica/profile-foaf-org.ttl"));
-        RDFRepresentation abiesNumidicaSchema = new RDFRepresentation(new URI("http://localhost:80/cn-formalisation/3/abies_numidica/an-schema.ttl"), new URI("http://localhost:80/cn-formalisation/3/abies_numidica/profile-schema.ttl"));
+        RDFRepresentation abiesNumidicaFoaf = new RDFRepresentation(new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/an-foaf.ttl"), new Profile(new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/profile-foaf.ttl")));
+        RDFRepresentation abiesNumidicaFoafOrg = new RDFRepresentation(new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/an-foaf-org.ttl"), new Profile(new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/profile-foaf-org.ttl")));
+        RDFRepresentation abiesNumidicaSchema = new RDFRepresentation(new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/an-schema.ttl"), new Profile(new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/profile-schema.ttl")));
 
         RDFConstraint serverConstraintAbiesNumidicaFoaf = representation -> representation.equals(abiesNumidicaFoaf) ? mustBeOfRDFRepresentationType(representation, 0.7F) : 0F;
         RDFConstraint serverConstraintAbiesNumidicaFoafOrg = representation -> representation.equals(abiesNumidicaFoafOrg) ? mustBeOfRDFRepresentationType(representation, 0.8F) : 0F;
         RDFConstraint serverConstraintAbiesNumidicaSchema = representation -> representation.equals(abiesNumidicaSchema) ? mustBeOfRDFRepresentationType(representation, 0.6F) : 0F;
 
-        web.addWebServer(abiesNumidica, new WebServerResource(
+        web.addServerData(abiesNumidica, new ServerData(
                 Set.of(abiesNumidicaFoaf, abiesNumidicaFoafOrg, abiesNumidicaSchema),
                 scnMeasure,
                 Set.of(serverConstraintAbiesNumidicaFoaf, serverConstraintAbiesNumidicaFoafOrg, serverConstraintAbiesNumidicaSchema)));
 
         Set<RDFConstraintWithReport> clientConstraints = getClientConstraints(3);
 
-        Query query = new Query(abiesNumidica.uri, clientConstraints.stream().map(constraint -> (Constraint) constraint).collect(Collectors.toSet()));
+        Request request = new Request(abiesNumidica.identifier, clientConstraints.stream().map(constraint -> (Constraint) constraint).collect(Collectors.toSet()));
 
-        WebServerResource resourceWebServer = web.findResourceWebServer(query.resourceURI);
+        ServerData serverData = web.findServerData(request.resourceIdentifier);
 
-        SemanticResponse response = web.negotiateSemanticResponse(resourceWebServer.representations,
-                resourceWebServer.cnMeasure,
-                query.clientConstraints,
-                resourceWebServer.serverConstraints);
+        SemanticResponse response = web.negotiateSemanticResponse(serverData.representations,
+                serverData.cnMeasure,
+                request.clientConstraints,
+                serverData.serverConstraints);
 
         System.out.println(response);
 
@@ -84,7 +85,7 @@ public class FourthUseCase {
             case 1:
                 return Set.of(
                         representation -> {
-                            ValidationReport report = isRepresentationValid(representation, new URI("http://localhost:80/cn-formalisation/3/abies_numidica/profile-schema-custom.ttl"));
+                            ValidationReport report = isRepresentationValid(representation, new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/profile-schema-custom.ttl"));
                             if (report != null && report.conforms()) {
                                 return new SemanticMeasurement(1F, getStringGraph(report.getGraph()));
                             } else {
@@ -95,7 +96,7 @@ public class FourthUseCase {
             case 2:
                 return Set.of(
                         representation -> {
-                            ValidationReport report = isRepresentationValid(representation, new URI("http://localhost:80/cn-formalisation/3/abies_numidica/profile-with-severity.ttl"));
+                            ValidationReport report = isRepresentationValid(representation, new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/profile-with-severity.ttl"));
                             if (report != null && report.conforms()) {
                                 return new SemanticMeasurement(1F, getStringGraph(report.getGraph()));
                             } else {
@@ -106,7 +107,7 @@ public class FourthUseCase {
             case 3:
                 return Set.of(
                         representation -> {
-                            ValidationReport report = isRepresentationValid(representation, new URI("http://localhost:80/cn-formalisation/3/abies_numidica/profile-with-severity.ttl"));
+                            ValidationReport report = isRepresentationValid(representation, new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/profile-with-severity.ttl"));
                             if (report == null) {
                                 return new SemanticMeasurement(0F, null);
                             } else if (report.conforms()) {
@@ -137,10 +138,10 @@ public class FourthUseCase {
         return Math.max(0, qualityValue);
     }
 
-    public static ValidationReport isRepresentationValid(Representation representation, URI profile) {
+    public static ValidationReport isRepresentationValid(Representation representation, Identifier profile) {
         try {
 
-            Graph dataGraph = RDFDataMgr.loadGraph(representation.uri.toString());
+            Graph dataGraph = RDFDataMgr.loadGraph(representation.identifier.toString());
 
             Graph shapesGraph = RDFDataMgr.loadGraph(profile.toString());
             Shapes shapes = Shapes.parse(shapesGraph);
