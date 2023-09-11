@@ -1,6 +1,6 @@
 # Content Negotiation Formalisation
 
-This project aims to show the applicability of the formalisation proposed in the paper: [*An Abstract Model for Content Negotiation*](https://youctagh.github.io/research) by providing an implementation along some examples. 
+This project aims to show the applicability of the formalisation proposed in Chapter 4 and 5 of the thesis: [**]() by providing an implementation along some examples. 
 
 An incremental CN use case is used in the paper and is reflected in the implementation:
 1. CN in the classical dimensions: Media type + Language.
