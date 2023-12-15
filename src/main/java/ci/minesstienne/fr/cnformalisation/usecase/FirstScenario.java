@@ -45,7 +45,7 @@ public class FirstScenario {
                 serverCNMeasure,
                 Set.of(serverConstraintAbiesNumidicaHTML,serverConstraintAbiesNumidicaPDF, serverConstraintAbiesNumidicaTextEn, serverConstraintAbiesNumidicaTextFr, serverConstraintAbiesNumidicaRdfTurtle, serverConstraintAbiesNumidicaRdfXml)));
 
-        Set<Constraint> clientConstraints = getClientConstraints(7);
+        Set<Constraint> clientConstraints = getClientConstraints(6);
 
         Request request = new Request(abiesNumidica.identifier, clientConstraints);
 

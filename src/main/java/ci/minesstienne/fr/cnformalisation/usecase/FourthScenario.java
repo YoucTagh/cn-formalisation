@@ -1,15 +1,10 @@
 package ci.minesstienne.fr.cnformalisation.usecase;
 
 import ci.minesstienne.fr.cnformalisation.abstractmodel.general.*;
+import ci.minesstienne.fr.cnformalisation.abstractmodel.relaxed.*;
 import ci.minesstienne.fr.cnformalisation.abstractmodel.semantic.Profile;
-import ci.minesstienne.fr.cnformalisation.abstractmodel.semantic.RDFConstraint;
 import ci.minesstienne.fr.cnformalisation.abstractmodel.semantic.RDFRepresentation;
-import ci.minesstienne.fr.cnformalisation.abstractmodel.swreport.RDFConstraintWithReport;
-import ci.minesstienne.fr.cnformalisation.abstractmodel.swreport.SCNMeasure;
-import ci.minesstienne.fr.cnformalisation.abstractmodel.swreport.SemanticMeasurement;
-import ci.minesstienne.fr.cnformalisation.abstractmodel.swreport.SemanticResponse;
 import org.apache.jena.graph.Graph;
-import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.shacl.ShaclValidator;
 import org.apache.jena.shacl.Shapes;
@@ -17,11 +12,8 @@ import org.apache.jena.shacl.ValidationReport;
 import org.apache.jena.shacl.validation.ReportEntry;
 import org.apache.jena.shacl.validation.Severity;
 
-import java.io.StringWriter;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
-
-import static ci.minesstienne.fr.cnformalisation.abstractmodel.semantic.RDFConstraint.mustBeOfRDFRepresentationType;
 
 /**
  * @author YoucTagh
@@ -30,143 +22,109 @@ public class FourthScenario {
 
     public static void main(String[] args) {
 
-        Resource abiesNumidica = new Resource(new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica"));
+        Resource youctagh = new Resource(new Identifier("http://www.youctagh.com/me/"));
 
-        SCNMeasure scnMeasure = (representation, clientConstraints, serverConstraint) -> {
+        SemanticCNMeasure semanticCNMeasure = (representation, clientProfiles, serverProfiles) -> {
 
-            SemanticMeasurement clientSM = new SemanticMeasurement(0F, null);
+            float bestQuality = 0;
+            Set<ValidationResult> bestReportSet = new HashSet<>();
 
-            for (Constraint constraint : clientConstraints) {
-                SemanticMeasurement semanticMeasurement = ((RDFConstraintWithReport) constraint).getRepresentationSemanticMeasurement(representation);
-                if (clientSM.qualityValue < semanticMeasurement.qualityValue)
-                    clientSM = semanticMeasurement;
+            for (Profile clientProfile : clientProfiles) {
+                for (Profile serverProfile : serverProfiles) {
+                    ValidationReport clientReport = isRepresentationValid(representation, clientProfile);
+                    SemanticMeasureResponse clientSM = calculateValidationReportScore(clientReport);
+
+                    ValidationReport serverReport = isRepresentationValid(representation, serverProfile);
+                    SemanticMeasureResponse serverSM = calculateValidationReportScore(serverReport);
+
+                    float representationQuality = clientSM.quality * serverSM.quality;
+                    if (representationQuality > bestQuality) {
+                        bestQuality = representationQuality;
+                        bestReportSet.addAll(clientSM.reportSet);
+                        bestReportSet.addAll(serverSM.reportSet);
+                    }
+                    logMeasurement(serverProfile, clientProfile, representationQuality, representation);
+                }
             }
-
-            float serverQuality = 0;
-            for (Constraint constraint : serverConstraint) {
-                serverQuality = Math.max(constraint.getRepresentationQuality(representation), serverQuality);
-            }
-            return new SemanticMeasurement(clientSM.qualityValue * serverQuality, clientSM.report);
+            return new SemanticMeasureResponse(bestQuality, bestReportSet);
         };
 
-        Web web = new Web();
+        SemanticWeb semanticWeb = new SemanticWeb();
 
-        RDFRepresentation abiesNumidicaFoaf = new RDFRepresentation(new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/an-foaf.ttl"), new Profile(new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/profile-foaf.ttl")));
-        RDFRepresentation abiesNumidicaFoafOrg = new RDFRepresentation(new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/an-foaf-org.ttl"), new Profile(new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/profile-foaf-org.ttl")));
-        RDFRepresentation abiesNumidicaSchema = new RDFRepresentation(new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/an-schema.ttl"), new Profile(new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/profile-schema.ttl")));
+        RDFRepresentation abiesNumidicaFoaf = new RDFRepresentation(new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/an-foaf.ttl"), new Profile(new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/profile-foaf.ttl"), null));
+        RDFRepresentation abiesNumidicaFoafOrg = new RDFRepresentation(new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/an-foaf-org.ttl"), new Profile(new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/profile-foaf-org.ttl"), null));
+        RDFRepresentation abiesNumidicaSchema = new RDFRepresentation(new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/an-schema.ttl"), new Profile(new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/profile-schema.ttl"), null));
 
-        RDFConstraint serverConstraintAbiesNumidicaFoaf = representation -> representation.equals(abiesNumidicaFoaf) ? mustBeOfRDFRepresentationType(representation, 0.7F) : 0F;
-        RDFConstraint serverConstraintAbiesNumidicaFoafOrg = representation -> representation.equals(abiesNumidicaFoafOrg) ? mustBeOfRDFRepresentationType(representation, 0.8F) : 0F;
-        RDFConstraint serverConstraintAbiesNumidicaSchema = representation -> representation.equals(abiesNumidicaSchema) ? mustBeOfRDFRepresentationType(representation, 0.6F) : 0F;
-
-        web.addServerData(abiesNumidica, new ServerData(
+        semanticWeb.addSemanticServerData(youctagh, new SemanticServerData(
                 Set.of(abiesNumidicaFoaf, abiesNumidicaFoafOrg, abiesNumidicaSchema),
-                scnMeasure,
-                Set.of(serverConstraintAbiesNumidicaFoaf, serverConstraintAbiesNumidicaFoafOrg, serverConstraintAbiesNumidicaSchema)));
+                semanticCNMeasure,
+                Set.of(((Profile) abiesNumidicaFoaf.profile), ((Profile) abiesNumidicaFoafOrg.profile), ((Profile) abiesNumidicaSchema.profile))
+        ));
 
-        Set<RDFConstraintWithReport> clientConstraints = getClientConstraints(3);
+        Set<Profile> clientProfiles = getClientProfiles(3);
 
-        Request request = new Request(abiesNumidica.identifier, clientConstraints.stream().map(constraint -> (Constraint) constraint).collect(Collectors.toSet()));
+        SemanticRequest semanticRequest = new SemanticRequest(youctagh.identifier, clientProfiles);
 
-        ServerData serverData = web.findServerData(request.resourceIdentifier);
+        SemanticServerData semanticServerData = semanticWeb.findSemanticServerData(semanticRequest.resourceIdentifier);
 
-        SemanticResponse response = web.negotiateSemanticResponse(serverData.representations,
-                serverData.cnMeasure,
-                request.clientConstraints,
-                serverData.serverConstraints);
+        SemanticResponse response = semanticWeb.negotiateSemanticResponse(semanticServerData.rdfRepresentations,
+                semanticServerData.semanticCNMeasure,
+                semanticRequest.profiles,
+                semanticServerData.serverProfiles);
 
         System.out.println(response);
 
     }
 
     @SuppressWarnings("SameParameterValue")
-    public static Set<RDFConstraintWithReport> getClientConstraints(int useCase) {
+    public static Set<Profile> getClientProfiles(int useCase) {
         switch (useCase) {
-            case 1:
-                return Set.of(
-                        representation -> {
-                            ValidationReport report = isRepresentationValid(representation, new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/profile-schema-custom.ttl"));
-                            if (report != null && report.conforms()) {
-                                return new SemanticMeasurement(1F, getStringGraph(report.getGraph()));
-                            } else {
-                                return new SemanticMeasurement(0F, null);
-                            }
-                        }
-                );
-            case 2:
-                return Set.of(
-                        representation -> {
-                            ValidationReport report = isRepresentationValid(representation, new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/profile-with-severity.ttl"));
-                            if (report != null && report.conforms()) {
-                                return new SemanticMeasurement(1F, getStringGraph(report.getGraph()));
-                            } else {
-                                return new SemanticMeasurement(0F, null);
-                            }
-                        }
-                );
-            case 3:
-                return Set.of(
-                        representation -> {
-                            ValidationReport report = isRepresentationValid(representation, new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/profile-with-severity.ttl"));
-                            if (report == null) {
-                                return new SemanticMeasurement(0F, null);
-                            } else if (report.conforms()) {
-                                return new SemanticMeasurement(1F, getStringGraph(report.getGraph()));
-                            } else {
-                                float qualityValue = calculateConformanceScore(report);
-                                return new SemanticMeasurement(qualityValue, getStringGraph(report.getGraph()));
-                            }
-                        }
-                );
             default:
-                return Set.of(representation -> new SemanticMeasurement(1F, ""));
+                return Set.of(new Profile(new Identifier("http://localhost:80/cn-formalisation/3/abies_numidica/profile-with-severity.ttl"), null));
         }
 
     }
 
-    private static float calculateConformanceScore(ValidationReport report) {
+    private static SemanticMeasureResponse calculateValidationReportScore(ValidationReport report) {
         float qualityValue = 1;
+        Set<ValidationResult> validationResults = new HashSet<>();
         for (ReportEntry reportEntry : report.getEntries()) {
             if (reportEntry.severity().equals(Severity.Violation)) {
-                return 0;
+                qualityValue = 0;
+                validationResults.add(new ValidationResult(1, ConstraintType.hard, reportEntry.message()));
             } else if (reportEntry.severity().equals(Severity.Warning)) {
                 qualityValue -= 0.1;
+                validationResults.add(new ValidationResult(0.1F, ConstraintType.soft, reportEntry.message()));
             } else if (reportEntry.severity().equals(Severity.Info)) {
                 qualityValue -= 0.01;
+                validationResults.add(new ValidationResult(0.01F, ConstraintType.soft, reportEntry.message()));
             }
         }
-        return Math.max(0, qualityValue);
+        return new SemanticMeasureResponse(Math.max(0, qualityValue), validationResults);
     }
 
-    public static ValidationReport isRepresentationValid(Representation representation, Identifier profile) {
+    public static ValidationReport isRepresentationValid(Representation representation, Profile profile) {
         try {
-
             Graph dataGraph = RDFDataMgr.loadGraph(representation.identifier.toString());
 
-            Graph shapesGraph = RDFDataMgr.loadGraph(profile.toString());
+            Graph shapesGraph = RDFDataMgr.loadGraph(profile.identifier.toString());
             Shapes shapes = Shapes.parse(shapesGraph);
-
-            if (dataGraph.isEmpty()) {
-                return getDefaultReport();
-            }
 
             return ShaclValidator.get().validate(shapes, dataGraph);
 
         } catch (Exception ex) {
-            return getDefaultReport();
+            ValidationReport report = new ValidationReport.Builder().build();
+            report.getEntries().add(ReportEntry.create().severity(Severity.Violation).message(ex.getMessage()));
+            return report;
         }
     }
 
-    private static ValidationReport getDefaultReport() {
-        return null;
+    public static void logMeasurement(Profile serverProfile, Profile clientProfile, float quality, RDFRepresentation rdfRepresentation) {
+        System.out.println("\tServerProfile => " + serverProfile);
+        System.out.println("\tClientProfile => " + clientProfile);
+        System.out.println("\tRepresentation => " + rdfRepresentation.identifier + " => " + quality);
+        System.out.println("--------------");
     }
-
-    private static String getStringGraph(Graph graph) {
-        StringWriter sw = new StringWriter();
-        RDFDataMgr.write(sw, graph, Lang.TURTLE);
-        return sw.toString();
-    }
-
 }
 
 

@@ -9,7 +9,7 @@ class Resource {
     + identifier : Identifier
 }
 
-class Web {
+interface Web {
     - WEB : HashMap<Resource, ServerData>
     + addWebServer(resource, serverData) : void
     + findResourceWebServer(resourceIdentifier) : ServerData

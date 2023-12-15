@@ -1,0 +1,91 @@
+@startuml
+
+enum ConstraintType {
+    hard, soft
+}
+
+class Profile {
+    + identifier: Identifier
+    + shapes: Set<Shape>
+}
+
+interface SemanticCNMeasure {
+    + getRepresentationQuality(rdfRepresentation, clientProfile, serverProfile):SemanticMeasureResponse
+}
+
+class SemanticRequest {
+    + resourceIdentifier : Identifier
+    + profiles : Set<Profile>
+}
+
+class SemanticMeasureResponse {
+    + quality : float
+    + reportSet : Set<ValidationResult>
+}
+
+class SemanticResponse {
+    + rdfRepresentation : RDFRepresentation
+    + validationResultSet : Set<ValidationResult>
+}
+
+class SemanticServerData {
+    rdfRepresentations : Set<RDFRepresentation>
+    semanticCNMeasure : SemanticCNMeasure
+    serverProfiles : Set<Profile>
+}
+
+interface ConformanceCheck {
+    check(rdfRepresentation, shape) : ValidationResult
+}
+
+class Shape {
+    + constraint : Constraint
+    + constraintType : ConstraintType
+}
+
+class ValidationResult {
+    + qvalue : float
+    + constraintType : ConstraintType
+    + message : String
+}
+
+interface SemanticWeb {
+    - SEMANTIC_WEB : HashMap<Resource, SemanticServerData>
+
+    + addSemanticServerData(resource, semanticServerData) : void
+    + findSemanticServerData(resourceIdentifier) : SemanticServerData
+    + negotiateSemanticResponse(rdfRepresentations, semanticCNMeasure, clientProfiles, serverProfiles) : SemanticResponse
+}
+
+'Profile --> Identifier
+Profile --> Shape
+
+'SemanticCNMeasure ..> RDFRepresentation
+SemanticCNMeasure ..> Profile
+
+'SemanticRequest --> Identifier
+SemanticRequest --> Profile
+
+SemanticMeasureResponse --> ValidationResult
+
+'SemanticResponse --> RDFRepresentation
+SemanticResponse --> ValidationResult
+
+'SemanticServerData --> RDFRepresentation
+SemanticServerData --> SemanticCNMeasure
+SemanticServerData --> Profile
+
+'ConformanceCheck ..> RDFRepresentation
+ConformanceCheck ..> Shape
+
+'Shape --> Constraint
+Shape --> ConstraintType
+
+ValidationResult --> ConstraintType
+
+SemanticWeb --> SemanticServerData
+'SemanticWeb --> Resource
+SemanticWeb ..> Profile
+SemanticWeb ..> SemanticCNMeasure
+
+@enduml
